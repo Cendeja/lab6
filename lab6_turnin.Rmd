@@ -40,11 +40,13 @@ d_weather_date <- d_weather_remove %>% mutate(Date=as.Date(Date,format='%m/%d/%y
 Answer the following question.
 
 * *List two different approaches for dealing with attributes that have missing (i.e. NA) values.*
+Use the mean or median values.
+Use the most frequent value or input a 0 value.
 
 If it was a requirement that all explanatory attributes were numeric, how might you handle:
 
-1. *Date*
-2. *WindGustDir*
+1. *Date* Do nothing most likely since we can't input a 0 or the mean.
+2. *WindGustDir* Use the most frequent value, in this case 366.
 
 
 ## Data Exploration
@@ -56,8 +58,10 @@ ggplot(d_weather, aes(x=as.numeric(MinTemp))) + geom_density()
 ```
 
 * *Explain each of the plots and what they could mean*
+The first plot shows us the counts of the windgust direction, in which we see the direction is often heading NorthWest.
+The second plot shows us the density plot of the minimum temperature. 
 * *What do these plots tell us about how accurate the model might be?*
-
+I would say the model wouldn't be as accurate because using as.numeric converts factors to numerical values and ggplot rounds numbers.
 ## Model Training and Accuracy
 
 ```{r data model,echo=FALSE}
@@ -66,15 +70,17 @@ decision_tree_model <- rpart(RainTomorrow ~ MinTemp + MaxTemp + Rainfall + Evapo
 
 Answer the following regarding model accuracy.
 
-* *If we care most about predicting when it rains (i.e. rain has the biggest impact on us), which metrics related to the confusion matrix are important to consider? Meaning, do we care more or less about the overall prediction accuracy and is there a subset of the prediction accuracy we care more about? See: [https://en.wikipedia.org/wiki/Confusion_matrix](https://en.wikipedia.org/wiki/Confusion_matrix)*
-* *Assume we care most about predicting when it rains.  Calculate the metrics related to the confusion matrix that are most important.*
+* *If we care most about predicting when it rains (i.e. rain has the biggest impact on us), which metrics related to the confusion matrix are important to consider? Meaning, do we care more or less about the overall prediction accuracy and is there a subset of the prediction accuracy we care more about? See: [https://en.wikipedia.org/wiki/Confusion_matrix](https://en.wikipedia.org/wiki/Confusion_matrix)* 
+We would care more about the overall prediction accuracy such as mapping out whether or not rain is a false positive, false negative, true positive or true negative. We would care about whether or not it is sunny and determine at what temperature and which wind directions it is most likely to rain from there. 
+* *Assume we care most about predicting when it rains.  Calculate the metrics related to the confusion matrix that are most important.* 
+The probability that it actually rains given the model said it would rain is 41 / (11+41) = 78%. That means that if the model predicts rain, we know that it should actually rain about 78% of the time.
 
 ## Prediction
 
 Answer the following regarding the chart below.
 
-* *What does the model predict if Sunshine = 7.3 and MinTemp = 15?*
-* *What does the model predict if Sunshine = 8, WindGust = E?*
+* *What does the model predict if Sunshine = 7.3 and MinTemp = 15?* Because the sunshine is greater than 6.5 and the minimum temp is less than 17, the likely hood of it raining is 6/11=54% according to the model.
+* *What does the model predict if Sunshine = 8, WindGust = E?* Since the windgust is going East and sunshine is greater than .2, the likely hood of it raining is 5/7=71% which is greater than 
 
 
 aa <- tibble(MinTemp=15,MaxTemp=24.3,Rainfall=0,Evaporation=3.4,Sunshine=6,WindGustDir=wg$WindGustDir,WindGustSpeed=30)
